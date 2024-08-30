@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetes Prediction</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-900">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
+            <h1 class="text-2xl font-bold text-center mb-6">Diabetes Prediction</h1>
+
+            <div class="space-y-4">
+                <!-- Pregnancies -->
+                <div>
+                    <label for="pregnancies" class="block text-sm font-medium text-gray-700">Pregnancies: <span id="pregnanciesValue">1</span></label>
+                    <input id="pregnancies" type="range" min="0" max="20" value="1" class="w-full h-2 bg-blue-200 rounded-lg cursor-pointer">
+                </div>
+
+                <!-- Glucose -->
+                <div>
+                    <label for="glucose" class="block text-sm font-medium text-gray-700">Glucose Level: <span id="glucoseValue">120</span></label>
+                    <input id="glucose" type="range" min="50" max="200" value="120" class="w-full h-2 bg-green-200 rounded-lg cursor-pointer">
+                </div>
+
+                <!-- Blood Pressure -->
+                <div>
+                    <label for="blood_pressure" class="block text-sm font-medium text-gray-700">Blood Pressure: <span id="bloodPressureValue">70</span></label>
+                    <input id="blood_pressure" type="range" min="40" max="130" value="70" class="w-full h-2 bg-red-200 rounded-lg cursor-pointer">
+                </div>
+
+                <!-- Skin Thickness -->
+                <div>
+                    <label for="skin_thickness" class="block text-sm font-medium text-gray-700">Skin Thickness: <span id="skinThicknessValue">20</span></label>
+                    <input id="skin_thickness" type="range" min="10" max="100" value="20" class="w-full h-2 bg-yellow-200 rounded-lg cursor-pointer">
+                </div>
+
+                <!-- Insulin -->
+                <div>
+                    <label for="insulin" class="block text-sm font-medium text-gray-700">Insulin: <span id="insulinValue">80</span></label>
+                    <input id="insulin" type="range" min="0" max="300" value="80" class="w-full h-2 bg-purple-200 rounded-lg cursor-pointer">
+                </div>
+
+                <!-- BMI -->
+                <div>
+                    <label for="bmi" class="block text-sm font-medium text-gray-700">BMI: <span id="bmiValue">25</span></label>
+                    <input id="bmi" type="range" min="10" max="50" value="25" class="w-full h-2 bg-indigo-200 rounded-lg cursor-pointer">
+                </div>
+
+                <!-- Diabetes Pedigree -->
+                <div>
+                    <label for="diabetes_pedigree" class="block text-sm font-medium text-gray-700">Diabetes Pedigree Function: <span id="diabetesPedigreeValue">0.5</span></label>
+                    <input id="diabetes_pedigree" type="range" min="0" max="2" step="0.01" value="0.5" class="w-full h-2 bg-pink-200 rounded-lg cursor-pointer">
+                </div>
+
+                <!-- Age -->
+                <div>
+                    <label for="age" class="block text-sm font-medium text-gray-700">Age: <span id="ageValue">30</span></label>
+                    <input id="age" type="range" min="10" max="100" value="30" class="w-full h-2 bg-teal-200 rounded-lg cursor-pointer">
+                </div>
+
+                <!-- Predict Button -->
+                <div class="text-center mt-6">
+                    <button type="button" onclick="makePrediction()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Predict</button>
+                </div>
+            </div>
+
+            <!-- Result Section -->
+            <div id="result" class="mt-8 p-4 bg-gray-50 rounded-lg shadow-sm"></div>
+        </div>
+    </div>
+
+    <script>
+        // Existing JavaScript code for updating values and making prediction
+        const pregnancies = document.getElementById('pregnancies');
+        const glucose = document.getElementById('glucose');
+        const blood_pressure = document.getElementById('blood_pressure');
+        const skin_thickness = document.getElementById('skin_thickness');
+        const insulin = document.getElementById('insulin');
+        const bmi = document.getElementById('bmi');
+        const diabetes_pedigree = document.getElementById('diabetes_pedigree');
+        const age = document.getElementById('age');
+
+        pregnancies.oninput = function() {
+            document.getElementById('pregnanciesValue').textContent = this.value;
+        }
+        glucose.oninput = function() {
+            document.getElementById('glucoseValue').textContent = this.value;
+        }
+        blood_pressure.oninput = function() {
+            document.getElementById('bloodPressureValue').textContent = this.value;
+        }
+        skin_thickness.oninput = function() {
+            document.getElementById('skinThicknessValue').textContent = this.value;
+        }
+        insulin.oninput = function() {
+            document.getElementById('insulinValue').textContent = this.value;
+        }
+        bmi.oninput = function() {
+            document.getElementById('bmiValue').textContent = this.value;
+        }
+        diabetes_pedigree.oninput = function() {
+            document.getElementById('diabetesPedigreeValue').textContent = this.value;
+        }
+        age.oninput = function() {
+            document.getElementById('ageValue').textContent = this.value;
+        }
+
+        async function makePrediction() {
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        pregnancies: parseInt(pregnancies.value),
+                        glucose: parseFloat(glucose.value),
+                        blood_pressure: parseFloat(blood_pressure.value),
+                        skin_thickness: parseFloat(skin_thickness.value),
+                        insulin: parseFloat(insulin.value),
+                        bmi: parseFloat(bmi.value),
+                        diabetes_pedigree: parseFloat(diabetes_pedigree.value),
+                        age: parseInt(age.value)
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                // Display the result in a more informative way
+                const predictionText = result.prediction === 1 ? "Positive for Diabetes" : "Negative for Diabetes";
+                const probabilityText = `Probability of being positive: ${(result.probability * 100).toFixed(2)}%`;
+
+                document.getElementById('result').innerHTML = `
+                    <h2 class="text-xl font-bold mb-4">Prediction Result</h2>
+                    <p class="text-lg mb-2"><strong>Result:</strong> ${predictionText}</p>
+                    <p class="text-lg mb-4"><strong>${probabilityText}</strong></p>
+                    <h3 class="text-lg font-bold mb-2">Details:</h3>
+                    <table class="table-auto w-full text-left">
+                        <tbody>
+                            <tr><th class="px-4 py-2">Pregnancies:</th><td class="px-4 py-2">${pregnancies.value}</td></tr>
+                            <tr><th class="px-4 py-2">Glucose Level:</th><td class="px-4 py-2">${glucose.value}</td></tr>
+                            <tr><th class="px-4 py-2">Blood Pressure:</th><td class="px-4 py-2">${blood_pressure.value}</td></tr>
+                            <tr><th class="px-4 py-2">Skin Thickness:</th><td class="px-4 py-2">${skin_thickness.value}</td></tr>
+                            <tr><th class="px-4 py-2">Insulin:</th><td class="px-4 py-2">${insulin.value}</td></tr>
+                            <tr><th class="px-4 py-2">BMI:</th><td class="px-4 py-2">${bmi.value}</td></tr>
+                            <tr><th class="px-4 py-2">Diabetes Pedigree:</th><td class="px-4 py-2">${diabetes_pedigree.value}</td></tr>
+                            <tr><th class="px-4 py-2">Age:</th><td class="px-4 py-2">${age.value}</td></tr>
+                        </tbody>
+                    </table>
+                `;
+            } catch (error) {
+                console.error('Error during prediction:', error);
+                document.getElementById('result').textContent = 'Error during prediction. Check the console for more details.';
+            }
+        }
+    </script>
+</body>
+</html>
